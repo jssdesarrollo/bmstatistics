@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>Bare - Start Bootstrap Template</title>
+        <!-- Favicon-->
+        <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link href="css/styles.css" rel="stylesheet" />
+    </head>
+    <body>
+        <!-- Navigation-->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
+            <div class="container">
+                <a class="navbar-brand" href="#!">Start Bootstrap</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+                <div class="collapse navbar-collapse" id="navbarResponsive">
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item active">
+                            <a class="nav-link" href="#!">
+                                Home
+                                <span class="sr-only">(current)</span>
+                            </a>
+                        </li>
+                        <li class="nav-item"><a class="nav-link" href="#!">About</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#!">Services</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#!">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <!-- Page content-->
+        <div class="container">
+            <div>
+                <h2 class="mt-5">Hashrate</h2>
+                <select id="worker" class="form-select" aria-label="Default select example">
+                  <option value="" default>Global</option>
+                  <option value="Jordan">Jordan</option>
+                  <option value="Pippen">Pippen</option>
+                </select>
+                <hr>
+                <p>Reported hashrate actual: <strong><span id="globalReportedhasrateActual"></span></strong></p>
+                <p>Mean hashrate actual: <strong><span id="globalMeanhasrateActual"></span></strong></p>
+
+
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Periodo</th>
+                      <th scope="col">Media Reported</th>
+                      <th scope="col">Media Hashrate </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <th scope="row">1h</th>
+                      <td id="globalMediaReported1h"></td>
+                      <td id="globalMediaHashrate1h"></td>
+                    </tr>
+                    <tr>
+                      <th scope="row">2h</th>
+                      <td id="globalMediaReported2h"></td>
+                      <td id="globalMediaHashrate2h"></td>
+                    </tr>
+                    <tr>
+                      <th scope="row">4h</th>
+                      <td id="globalMediaReported4h"></td>
+                      <td id="globalMediaHashrate4h"></td>
+                    </tr>
+                    <tr>
+                      <th scope="row">8h</th>
+                      <td id="globalMediaReported8h"></td>
+                      <td id="globalMediaHashrate8h"></td>
+                    </tr>
+                    <tr>
+                      <th scope="row">12h</th>
+                      <td id="globalMediaReported12h"></td>
+                      <td id="globalMediaHashrate12h"></td>
+                    </tr>
+                    <tr>
+                      <th scope="row">16h</th>
+                      <td id="globalMediaReported16h"></td>
+                      <td id="globalMediaHashrate16h"></td>
+                    </tr>
+                    <tr>
+                      <th scope="row">24h</th>
+                      <td id="globalMediaReported24h"></td>
+                      <td id="globalMediaHashrate24h"></td>
+                    </tr>
+
+                  </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- Bootstrap core JS-->
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Core theme JS-->
+        <script src="js/scripts.js"></script>
+
+        <script>
+            $( document ).ready(function() {
+                getData();
+                $('#worker').change(function() {
+                  var worker = $('#worker option:selected').val();
+                  console.log('worker: '+worker);
+                  getData();
+                });
+                function getData(){
+                    var worker = $('#worker option:selected').val();
+                    var settings = {
+                      "url": "https://hiveon.net/api/v1/stats/hashrates?minerAddress=afb4fb14433e82348ba9936f773d32f65ef4eaf9&coin=ETH&window=10m&limit=144&offset=0&worker="+worker,
+                      "method": "GET",
+                      "timeout": 0,
+                    };
+
+                    $.ajax(settings).done(function (response) {
+                      var items = response.items;
+                      var meanHashrateActual = Math.round(parseInt(items[0].meanHashrate) / 10000)/100;
+                      var reportedHashrateActual = Math.round(parseInt(items[0].reportedHashrate) / 10000)/100;
+                      var reported1h = 0;
+                      var hashrate1h = 0;
+                      var reported2h = 0;
+                      var hashrate2h = 0;
+                      var reported4h = 0;
+                      var hashrate4h = 0;
+                      var reported8h = 0;
+                      var hashrate8h = 0;
+                      var reported12h = 0;
+                      var hashrate12h = 0;
+                      var reported16h = 0;
+                      var hashrate16h = 0;
+                      var reported24h = 0;
+                      var hashrate24h = 0;
+                      items.forEach(recorrerItems);
+                      function recorrerItems (item, index){
+                        if(index < 6){
+                            reported1h += parseInt(item.reportedHashrate)
+                            hashrate1h += parseInt(item.hashrate)
+                        }
+                        if(index < 12){
+                            reported2h += parseInt(item.reportedHashrate)
+                            hashrate2h += parseInt(item.hashrate)
+                        }
+                        if(index < 24){
+                            reported4h += parseInt(item.reportedHashrate)
+                            hashrate4h += parseInt(item.hashrate)
+                        }
+                        if(index < 48){
+                            reported8h += parseInt(item.reportedHashrate)
+                            hashrate8h += parseInt(item.hashrate)
+                        }
+                        if(index < 72){
+                            reported12h += parseInt(item.reportedHashrate)
+                            hashrate12h += parseInt(item.hashrate)
+                        }
+                        if(index < 96){
+                            reported16h += parseInt(item.reportedHashrate)
+                            hashrate16h += parseInt(item.hashrate)
+                        }
+                        if(index < 144){
+                            reported24h += parseInt(item.reportedHashrate)
+                            hashrate24h += parseInt(item.hashrate)
+                        }
+                      }
+                      var globalMediaReported1h = Math.round((reported1h / 6) / 10000)/100;
+                      var globalMediaHashrate1h = Math.round((hashrate1h / 6) / 10000)/100;
+
+                      var globalMediaReported2h = Math.round((reported2h / 12) / 10000)/100;
+                      var globalMediaHashrate2h = Math.round((hashrate2h / 12) / 10000)/100;
+
+                      var globalMediaReported4h = Math.round((reported4h / 24) / 10000)/100;
+                      var globalMediaHashrate4h = Math.round((hashrate4h / 24) / 10000)/100;
+
+                      var globalMediaReported8h = Math.round((reported8h / 48) / 10000)/100;
+                      var globalMediaHashrate8h = Math.round((hashrate8h / 48) / 10000)/100;
+
+                      var globalMediaReported12h = Math.round((reported12h / 72) / 10000)/100;
+                      var globalMediaHashrate12h = Math.round((hashrate12h / 72) / 10000)/100;
+
+                      var globalMediaReported16h = Math.round((reported16h / 96) / 10000)/100;
+                      var globalMediaHashrate16h = Math.round((hashrate16h / 96) / 10000)/100;
+
+                      var globalMediaReported24h = Math.round((reported24h / 144) / 10000)/100;
+                      var globalMediaHashrate24h = Math.round((hashrate24h / 144) / 10000)/100;
+
+                      $("#globalReportedhasrateActual").text(reportedHashrateActual);
+                      $("#globalMeanhasrateActual").text(meanHashrateActual);
+
+                      $("#globalMediaReported1h").text(globalMediaReported1h);
+                      $("#globalMediaHashrate1h").text(globalMediaHashrate1h);
+
+                      $("#globalMediaReported2h").text(globalMediaReported2h);
+                      $("#globalMediaHashrate2h").text(globalMediaHashrate2h);
+
+                      $("#globalMediaReported4h").text(globalMediaReported4h);
+                      $("#globalMediaHashrate4h").text(globalMediaHashrate4h);
+
+                      $("#globalMediaReported8h").text(globalMediaReported8h);
+                      $("#globalMediaHashrate8h").text(globalMediaHashrate8h);
+
+                      $("#globalMediaReported12h").text(globalMediaReported12h);
+                      $("#globalMediaHashrate12h").text(globalMediaHashrate12h);
+
+                      $("#globalMediaReported16h").text(globalMediaReported16h);
+                      $("#globalMediaHashrate16h").text(globalMediaHashrate16h);
+
+                      $("#globalMediaReported24h").text(globalMediaReported24h);
+                      $("#globalMediaHashrate24h").text(globalMediaHashrate24h);
+                    });
+                }
+                
+            });
+
+        </script>
+    </body>
+</html>
